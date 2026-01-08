@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown 实时预览编辑器 (修复滚动版)</title>
+    <title>Markdown 专业编辑器</title>
     
     <!-- 引入 Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -20,6 +20,7 @@
             --preview-bg: #ffffff;
             --header-bg: #24292f;
             --btn-hover: #3c444d;
+            --accent-color: #2f81f7;
         }
 
         body {
@@ -31,10 +32,10 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 防止 body 出现滚动条 */
+            overflow: hidden;
         }
 
-        /* 顶部导航栏 */
+        /* --- 顶部导航栏 --- */
         header {
             background-color: var(--header-bg);
             color: white;
@@ -45,7 +46,7 @@
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 10;
-            flex-shrink: 0; /* 防止 header 被压缩 */
+            flex-shrink: 0;
         }
 
         h1 {
@@ -54,17 +55,27 @@
             font-weight: 600;
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        /* 控制按钮区域 */
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
         }
 
-        .toggle-btn {
-            background-color: transparent;
-            border: 1px solid rgba(255,255,255,0.4);
+        /* 分隔线 */
+        .divider {
+            width: 1px;
+            height: 20px;
+            background-color: rgba(255,255,255,0.3);
+            margin: 0 4px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
             padding: 4px 12px;
             border-radius: 4px;
@@ -73,48 +84,47 @@
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
-        .toggle-btn:hover {
+        .btn:hover {
             background-color: var(--btn-hover);
-            border-color: white;
+            border-color: rgba(255,255,255,0.8);
         }
 
-        .toggle-btn.active {
-            background-color: rgba(255,255,255,0.2);
-            border-color: white;
-            font-weight: bold;
+        .btn.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
         }
 
-        /* 主体容器 */
+        /* --- 主容器 --- */
         .container {
             display: flex;
-            flex: 1; /* 占满剩余高度 */
-            height: calc(100vh - 50px); /* 明确高度 */
-            overflow: hidden; /* 防止容器本身滚动 */
+            flex: 1;
+            height: calc(100vh - 50px);
+            overflow: hidden;
             transition: all 0.3s ease;
         }
 
-        /* 通用面板样式 */
+        /* --- 面板通用样式 --- */
         .panel {
             display: flex;
             flex-direction: column;
             background-color: var(--editor-bg);
-            flex: 1; /* 默认平分空间 */
+            flex: 1;
             min-width: 0;
-            height: 100%; /* 占满父容器高度 */
+            height: 100%;
             transition: all 0.3s ease;
-            overflow: hidden; /* 内部滚动，外部不滚动 */
+            overflow: hidden;
         }
 
-        /* 隐藏状态 */
         .panel.hidden {
             display: none;
             flex: 0;
         }
 
-        /* 编辑器特定样式 */
+        /* --- 编辑器区域 --- */
         .editor-panel {
             border-right: 1px solid var(--border-color);
         }
@@ -133,56 +143,79 @@
             color: #24292f;
             background-color: transparent;
             box-sizing: border-box;
-            overflow-y: auto; /* 编辑器自身滚动 */
+            overflow-y: auto;
         }
 
-        /* 预览特定样式 */
+        /* --- 预览区域 --- */
+        .preview-wrapper {
+            height: 100%;
+            overflow: hidden; /* 外层不滚动 */
+            display: flex;
+            flex-direction: column;
+        }
+        
         .preview-container {
-            /* 关键修复：增加页边距 */
-            padding: 30px 50px;
-            
-            /* 关键修复：确保溢出时出现滚动条 */
-            overflow-y: auto; 
-            overflow-x: hidden; /* 防止水平滚动条抖动 */
-            
+            flex: 1;
+            /* 美化页边距：PC端宽敞，移动端紧凑 */
+            padding: 40px 60px; 
+            overflow-y: auto;
+            overflow-x: hidden;
             background-color: var(--preview-bg);
-            height: 100%; /* 确保高度撑满 */
             box-sizing: border-box;
+            scroll-behavior: smooth;
         }
 
-        /* 滚动条美化 */
-        .preview-container::-webkit-scrollbar,
-        textarea::-webkit-scrollbar {
+        /* --- 滚动条美化 --- */
+        ::-webkit-scrollbar {
             width: 10px;
+            height: 10px;
         }
-        .preview-container::-webkit-scrollbar-thumb,
-        textarea::-webkit-scrollbar-thumb {
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
             background-color: #c1c1c1;
             border-radius: 5px;
             border: 2px solid transparent;
             background-clip: content-box;
         }
-        .preview-container::-webkit-scrollbar-thumb:hover,
-        textarea::-webkit-scrollbar-thumb:hover {
+        ::-webkit-scrollbar-thumb:hover {
             background-color: #a8a8a8;
         }
 
-        /* Markdown 样式 */
+        /* --- Markdown 样式 --- */
         .markdown-body {
             font-size: 16px;
-            line-height: 1.6;
-            max-width: 900px; /* 限制最大宽度，提升阅读体验 */
-            margin: 0 auto; /* 内容居中 */
+            line-height: 1.7; /* 增加行高，更美观 */
+            color: #24292f;
+            max-width: 900px; /* 限制最大宽度 */
+            margin: 0 auto;   /* 内容居中 */
         }
         
         .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-            border-bottom: 1px solid #eaecef;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
             padding-bottom: 0.3em;
+            border-bottom: 1px solid #eaecef;
         }
+        .markdown-body h1 { font-size: 2em; }
+        .markdown-body h2 { font-size: 1.5em; }
+        .markdown-body p { margin-bottom: 16px; }
+        
+        .markdown-body a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .markdown-body a:hover { text-decoration: underline; }
+
         .markdown-body img {
             max-width: 100%;
-            border-radius: 4px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
         .markdown-body code {
             padding: 0.2em 0.4em;
             margin: 0;
@@ -191,27 +224,31 @@
             border-radius: 6px;
             font-family: monospace;
         }
+
         .markdown-body pre {
             background-color: #f6f8fa;
             padding: 16px;
-            overflow: auto;
             border-radius: 6px;
+            overflow: auto;
+            margin-bottom: 16px;
         }
         .markdown-body pre code {
             background-color: transparent;
             padding: 0;
         }
+
         .markdown-body blockquote {
             padding: 0 1em;
             color: #57606a;
             border-left: 0.25em solid #d0d7de;
-            margin-left: 0;
+            margin: 0 0 16px 0;
         }
+
         .markdown-body table {
             border-collapse: collapse;
             width: 100%;
             margin-bottom: 16px;
-            display: block; /* 允许表格在小屏滚动 */
+            display: block;
             overflow-x: auto;
         }
         .markdown-body table th, .markdown-body table td {
@@ -221,34 +258,71 @@
         .markdown-body table tr:nth-child(2n) {
             background-color: #f6f8fa;
         }
+        .markdown-body ul, .markdown-body ol {
+            padding-left: 2em;
+            margin-bottom: 16px;
+        }
 
-        /* 移动端适配 */
+        /* --- Toast 提示框 --- */
+        .toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* --- 移动端适配 --- */
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .editor-panel {
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            /* 移动端减小页边距 */
-            .preview-container {
-                padding: 15px 20px;
-            }
+            .container { flex-direction: column; }
+            .editor-panel { border-right: none; border-bottom: 1px solid var(--border-color); }
+            .preview-container { padding: 20px 15px; }
+            .btn span { display: none; } /* 手机上隐藏按钮文字只留图标 */
+            .btn { padding: 6px 10px; }
+            h1 span { display: none; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Markdown Editor <span style="font-size: 12px; opacity: 0.6; font-weight: normal; margin-left: 10px;">Auto-saved</span></h1>
+        <h1>
+            <span style="font-size: 18px;">✍️</span> 
+            <span>MD Editor Pro</span>
+        </h1>
         
         <div class="controls">
-            <button id="toggle-editor" class="toggle-btn active" onclick="togglePanel('editor')">
-                <span>📝</span> 编辑器
+            <button id="toggle-editor" class="btn active" onclick="togglePanel('editor')" title="显示/隐藏 编辑器">
+                📝 <span>编辑</span>
             </button>
-            <button id="toggle-preview" class="toggle-btn active" onclick="togglePanel('preview')">
-                <span>👁️</span> 预览
+            <button id="toggle-preview" class="btn active" onclick="togglePanel('preview')" title="显示/隐藏 预览">
+                👁️ <span>预览</span>
+            </button>
+            
+            <div class="divider"></div>
+
+            <button class="btn" onclick="copyMarkdown()" title="复制 Markdown 文本">
+                📋 <span>复制</span>
+            </button>
+            <button class="btn" onclick="exportMarkdown()" title="下载 .md 文件">
+                ⬇️ <span>MD</span>
+            </button>
+            <button class="btn" onclick="exportHTML()" title="下载 .html 文件">
+                🌐 <span>HTML</span>
             </button>
         </div>
     </header>
@@ -261,12 +335,16 @@
         
         <!-- 右侧预览区 -->
         <div id="panel-preview" class="panel preview-panel">
-            <!-- 添加了 preview-container 包裹层，便于控制滚动和边距 -->
-            <div class="preview-container">
-                <div id="preview" class="markdown-body"></div>
+            <div class="preview-wrapper">
+                <div class="preview-container">
+                    <div id="preview" class="markdown-body"></div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Toast 提示容器 -->
+    <div id="toast" class="toast">操作成功</div>
 
     <script>
         const editor = document.getElementById('editor');
@@ -286,7 +364,20 @@
             }
         });
 
-        // 切换面板显示/隐藏
+        // --- 核心功能函数 ---
+
+        // 1. 更新预览
+        const updatePreview = () => {
+            const markdownText = editor.value;
+            preview.innerHTML = marked.parse(markdownText);
+            localStorage.setItem('markdown-content', markdownText);
+            // 触发代码高亮
+            document.querySelectorAll('pre code').forEach((el) => {
+                highlight.highlightElement(el);
+            });
+        };
+
+        // 2. 切换面板
         function togglePanel(type) {
             if (type === 'editor') {
                 const isHidden = panelEditor.classList.contains('hidden');
@@ -317,58 +408,112 @@
             }
         }
 
-        // 更新预览函数
-        const updatePreview = () => {
-            const markdownText = editor.value;
-            preview.innerHTML = marked.parse(markdownText);
-            localStorage.setItem('markdown-content', markdownText);
-            document.querySelectorAll('pre code').forEach((el) => {
-                highlight.highlightElement(el);
-            });
-        };
+        // 3. 一键复制 Markdown 文本
+        function copyMarkdown() {
+            if (!editor.value) {
+                showToast("没有内容可复制");
+                return;
+            }
+            editor.select();
+            document.execCommand('copy'); // 兼容性最好的写法
+            // 取消选中
+            window.getSelection().removeAllRanges();
+            showToast("Markdown 文本已复制！");
+        }
 
-        // 监听输入
+        // 4. 一键导出 Markdown 文件
+        function exportMarkdown() {
+            const content = editor.value;
+            if (!content) {
+                showToast("没有内容可导出");
+                return;
+            }
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            saveAs(blob, "document.md");
+        }
+
+        // 5. 一键导出 HTML 文件
+        function exportHTML() {
+            const content = editor.value;
+            if (!content) {
+                showToast("没有内容可导出");
+                return;
+            }
+            
+            // 构建完整的 HTML 字符串，包含样式
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exported Markdown</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; }
+        code { font-family: monospace; background: rgba(175,184,193,0.2); padding: 0.2em 0.4em; border-radius: 3px; }
+        pre code { background: transparent; padding: 0; }
+        blockquote { border-left: 0.25em solid #d0d7de; padding-left: 1em; color: #6a737d; }
+        img { max-width: 100%; border-radius: 4px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
+        th, td { border: 1px solid #d0d7de; padding: 6px 13px; }
+        tr:nth-child(2n) { background-color: #f6f8fa; }
+    </style>
+</head>
+<body>
+ ${marked.parse(content)}
+</body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            saveAs(blob, "document.html");
+        }
+
+        // 通用保存文件函数
+        function saveAs(blob, filename) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`已导出: ${filename}`);
+        }
+
+        // 显示 Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast show";
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 3000);
+        }
+
+        // --- 初始化 ---
         editor.addEventListener('input', updatePreview);
 
-        // 初始化内容（用于测试滚动条）
         const savedContent = localStorage.getItem('markdown-content');
         if (savedContent) {
             editor.value = savedContent;
         } else {
-            // 生成长内容用于测试滚动条
-            let longContent = `# 可折叠的 Markdown 编辑器 (修复滚动版)
+            editor.value = `# 专业 Markdown 编辑器
 
-本次更新主要修复了预览区无法滚动以及页边距缺失的问题。
+欢迎使用！这是一个完全在浏览器运行的 Markdown 编辑器。
 
-## 滚动测试
-请在编辑器中不断输入内容，或者点击预览区的滚动条，你会发现右侧预览区可以独立滚动，而不会影响左侧编辑器。
+## 功能亮点
+1. **实时预览**：左侧输入，右侧实时渲染。
+2. **一键操作**：支持复制、导出 MD、导出 HTML。
+3. **美观样式**：优化的页边距和排版，类似 GitHub 风格。
+4. **数据安全**：内容自动保存在本地 LocalStorage。
 
-## 页边距
-现在预览内容左右留白更加舒适，阅读体验更好。
-
-`;
-            // 循环生成内容以撑开页面
-            for(let i=1; i<=20; i++) {
-                longContent += `
-### 测试段落 ${i}
-
-这里是第 ${i} 段测试文本。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-**加粗文本** 和 *斜体文本* 的测试。
-
-- 列表项 A
-- 列表项 B
-- 列表项 C
-
+## 试试看
 \`\`\`javascript
-// 代码块测试 ${i}
-function test() {
-  console.log("Line ${i}");
-}
+console.log("Hello World");
 \`\`\`
+
+> 生活不止眼前的苟且，还有诗和远方的田野。
 `;
-            }
-            editor.value = longContent;
         }
         updatePreview();
     </script>
