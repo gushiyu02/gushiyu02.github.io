@@ -429,7 +429,7 @@
                 return;
             }
             const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-            saveAs(blob, "document.md");
+            saveAs(blob, "index.md");
         }
 
         // 5. 一键导出 HTML 文件
@@ -466,7 +466,7 @@
 </html>`;
             
             const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            saveAs(blob, "document.html");
+            saveAs(blob, "index.html");
         }
 
         // 通用保存文件函数
